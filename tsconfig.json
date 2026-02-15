@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "lib": ["esnext"],
+        "target": "esnext",
+        "module": "preserve",
+        "moduleDetection": "force",
+        "moduleResolution": "bundler",
+        "types": ["bun"],
+        "exactOptionalPropertyTypes": true,
+        "noImplicitReturns": true,
+        "noImplicitOverride": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "strict": true,
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "noUncheckedSideEffectImports": true,
+        "skipLibCheck": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": ".",
+        "paths": { "@/*": ["src/*"] }
+    }
+}
