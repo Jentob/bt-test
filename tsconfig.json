@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "lib": ["esnext"],
-        "target": "esnext",
+        "lib": ["esnext", "DOM", "DOM.Iterable"],
+        "target": "es2023",
         "module": "preserve",
         "moduleDetection": "force",
         "moduleResolution": "bundler",
@@ -21,6 +21,11 @@
         "jsx": "react-jsx",
         "forceConsistentCasingInFileNames": true,
         "baseUrl": ".",
-        "paths": { "@/*": ["src/*"] }
-    }
+        "paths": {
+            "@/*": ["src/*"],
+            "@client/*": ["src/client/*"],
+            "@shadcn/*": ["src/client/shadcn/*"]
+        }
+    },
+    "exclude": ["dist"]
 }

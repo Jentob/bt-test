@@ -1,8 +1,28 @@
 {
     "$schema": "https://biomejs.dev/schemas/2.3.15/schema.json",
+    "files": {
+        "includes": ["**", "!src/client/shadcn"]
+    },
+    "vcs": {
+        "enabled": true,
+        "useIgnoreFile": true,
+        "clientKind": "git"
+    },
     "formatter": {
         "indentStyle": "space",
         "indentWidth": 4,
         "lineWidth": 120
+    },
+    "linter": {
+        "rules": {
+            "style": {
+                "noNonNullAssertion": "info"
+            }
+        }
+    },
+    "css": {
+        "parser": {
+            "tailwindDirectives": true
+        }
     }
 }
