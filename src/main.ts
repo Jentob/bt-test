@@ -1,10 +1,9 @@
-import noble, { Characteristic, Peripheral } from "@stoprocent/noble";
-import type { ServerWebSocket } from "bun";
+import noble, { type Characteristic, type Peripheral } from "@stoprocent/noble";
 import client from "src/client/index.html";
 import { getHRCharacteristic, getHRPeripheral } from "./lib/bt";
 import { registerShutdownFunction, shutdown } from "./lib/shutdown";
 
-const hrClients = new Set<ServerWebSocket>();
+await noble.waitForPoweredOnAsync();
 
 const server = Bun.serve({
     development: process.env.NODE_ENV === "development",
@@ -55,7 +54,6 @@ await (async () => {
     };
     registerShutdownFunction(onSigint);
 
-    await noble.waitForPoweredOnAsync();
     peripheral = await getHRPeripheral();
 
     if (!peripheral) {

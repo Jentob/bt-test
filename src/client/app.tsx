@@ -31,7 +31,7 @@ export default function App() {
     }, []);
 
     const sendMessage = () => {
-        ws.current?.send(input);
+        ws.current?.send(JSON.stringify({ type: "echo", message: input }));
         setInput("");
     };
 
@@ -43,6 +43,7 @@ export default function App() {
             <button type="button" onClick={sendMessage}>
                 Send
             </button>
+            <button type="button" onClick={() => ws.current?.send(JSON.stringify({ type: "subscribe", channel: "hr" }))}>Close</button>
 
             <ul>
                 {messages.map((m, i) => (
