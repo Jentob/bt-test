@@ -3,8 +3,6 @@ import client from "src/client/index.html";
 import { getHRCharacteristic, getHRPeripheral } from "./lib/bt";
 import { registerShutdownFunction, shutdown } from "./lib/shutdown";
 
-await noble.waitForPoweredOnAsync();
-
 const server = Bun.serve({
     development: process.env.NODE_ENV === "development",
     port: 3000,
@@ -54,12 +52,13 @@ await (async () => {
     };
     registerShutdownFunction(onSigint);
 
+    await noble.waitForPoweredOnAsync();
     peripheral = await getHRPeripheral();
 
     if (!peripheral) {
         console.error("No heart rate peripheral found");
-        return
-    };
+        return;
+    }
 
     try {
         await peripheral.connectAsync();

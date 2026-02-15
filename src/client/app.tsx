@@ -3,30 +3,38 @@ import { Button } from "./shadcn/components/ui/button";
 import { Card, CardContent } from "./shadcn/components/ui/card";
 import { Input } from "./shadcn/components/ui/input";
 import { Label } from "./shadcn/components/ui/label";
+import { ThemeProvider } from "./shadcn/components/theme-provider";
+import { Toaster } from "./shadcn/components/ui/sonner";
 
 export default function App() {
-    const ws = useRef<WebSocket | null>(null);
+    const ws = useRef<WebSocket>(null as unknown as WebSocket);
+    const [wsStatus, setWsStatus] = useState("Disconnected");
     const [messages, setMessages] = useState<string[]>([]);
     const [input, setInput] = useState("");
+    const [hrSensorStatus, setHrSensorStatus] = useState("Disconnected");
+    const [recording, setRecording] = useState(false);
 
     useEffect(() => {
-        ws.current = new WebSocket("ws://localhost:3000/hr");
+        let retryTimeout: ReturnType<typeof setTimeout>;
 
-        ws.current.onopen = () => {
-            console.log("Connected to WS server");
-        };
+        const connect = () => {
+            setWsStatus("Connecting");
+            ws.current = new WebSocket("ws://localhost:3000");
 
-        ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            setMessages((prev) => [...prev, JSON.stringify(data)]);
+            ws.current.onopen = () => setWsStatus("Connected");
+            ws.current.onclose = () => {
+                setWsStatus("Disconnected");
+                retryTimeout = setTimeout(connect, 3000);
+            };
+            ws.current.onerror = () => setWsStatus("Error");
         };
+        connect();
 
-        ws.current.onclose = () => {
-            console.log("Disconnected");
-        };
+        ws.current.onmessage = (event) => console.log(event.data);
 
         return () => {
-            ws.current?.close();
+            ws.current.close();
+            clearTimeout(retryTimeout);
         };
     }, []);
 
@@ -36,63 +44,44 @@ export default function App() {
     };
 
     return (
-        <div>
-            <h1>WebSocket Test</h1>
-
-            <input value={input} onChange={(e) => setInput(e.target.value)} />
-            <button type="button" onClick={sendMessage}>
-                Send
-            </button>
-            <button type="button" onClick={() => ws.current?.send(JSON.stringify({ type: "subscribe", channel: "hr" }))}>Close</button>
-
-            <ul>
-                {messages.map((m, i) => (
-                    <li key={i}>{m}</li>
-                ))}
-            </ul>
-        </div>
-    );
-}
-/*
-export default function App() {
-    const ws = useRef<WebSocket | null>(null);
-
-    return (
-        <main className="min-h-screen flex flex-col items-center justify-center gap-8">
-            <section>
+        <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+            <Toaster />
+            <p className="absolute top-0 left-0">
+                Websocket Status: {wsStatus} -- HR Sensor Status: {hrSensorStatus} -- Recording Status:{" "}
+                {recording ? "Yes" : "No"}
+            </p>
+            <main className="min-h-screen flex flex-col items-center justify-center gap-4">
                 <Card>
                     <CardContent>
-                        <p className="text-8xl font-bold">HR: 67</p>
+                        <p className="text-8xl font-bold">
+                            HR: <span className="w-[3ch] inline-block text-end">-</span>
+                        </p>
                     </CardContent>
                 </Card>
-            </section>
-            <section>
                 <Card>
                     <CardContent>
-                        <form>
-                            <div className="flex flex-col gap-6">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input id="email" type="email" placeholder="m@example.com" required />
-                                </div>
-                                <div className="grid gap-2">
-                                    <div className="flex items-center">
-                                        <Label htmlFor="password">Password</Label>
-                                        <a
-                                            href="#"
-                                            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                                        >
-                                            Forgot your password?
-                                        </a>
-                                    </div>
-                                    <Input id="password" type="password" required />
-                                </div>
+                        <div className="flex gap-6 items-end align-bottom content-end">
+                            <div className="grid gap-2">
+                                <Label htmlFor="candidate">Candidate ID</Label>
+                                <Input
+                                    id="candidate"
+                                    type="text"
+                                    placeholder="Enter candidate ID"
+                                    required
+                                    disabled={recording}
+                                />
                             </div>
-                        </form>
+                            <Button
+                                type="submit"
+                                className="cursor-pointer"
+                                variant={recording ? "destructive" : "default"}
+                            >
+                                {recording ? "Stop Recording" : "Start Recording"}
+                            </Button>
+                        </div>
                     </CardContent>
                 </Card>
-            </section>
-        </main>
+            </main>
+        </ThemeProvider>
     );
 }
-*/
