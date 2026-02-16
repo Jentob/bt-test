@@ -63,7 +63,7 @@ export default function App() {
     }, []);
 
     return (
-        <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+        <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
             <Toaster />
             <p className="absolute top-0 left-0">
                 Websocket Status: {wsStatus} -- HR Sensor Status: {hrSensorConnected ? "Connected" : "Disconnected"} --
@@ -115,7 +115,11 @@ export default function App() {
                                     }
                                 }}
                             >
-                                {recording ? <span className="text-center w-[15ch]">Stop Recording</span> : "Start Recording"}
+                                {recording ? (
+                                    <span className="text-center w-[15ch]">Stop Recording</span>
+                                ) : (
+                                    "Start Recording"
+                                )}
                             </Button>
                         </div>
                     </CardContent>

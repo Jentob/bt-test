@@ -19,8 +19,7 @@ const server = Bun.serve({
         "/connection-status": () =>
             Response.json({ status: peripheral?.state === "connected" ? "connected" : "disconnected" }),
         "/record/start": async (request) => {
-            if (request.method !== "POST")
-                return Response.json({ message: "Method not allowed" }, { status: 405 });
+            if (request.method !== "POST") return Response.json({ message: "Method not allowed" }, { status: 405 });
             if (isRecording) return Response.json({ message: "Already recording" }, { status: 400 });
 
             try {
@@ -43,8 +42,7 @@ const server = Bun.serve({
             return Response.json({ message: "Recording started", id: recordingId });
         },
         "/record/stop": async (request) => {
-            if (request.method !== "POST")
-                return Response.json({ message: "Method not allowed" }, { status: 405 });
+            if (request.method !== "POST") return Response.json({ message: "Method not allowed" }, { status: 405 });
             if (!isRecording) return Response.json({ message: "Not recording" }, { status: 400 });
 
             if (recordFile) {
