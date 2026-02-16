@@ -2,12 +2,12 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "format": "biome format --write",
-        "format:write": "biome format --write",
-        "format:check": "biome format --check",
-        "lint": "biome lint --write",
-        "lint:write": "biome lint --write",
-        "lint:check": "biome lint --check",
+        "format": "bun run --bun biome format --write",
+        "format:write": "bun run --bun biome format --write",
+        "format:check": "bun run --bun biome format --check",
+        "lint": "bun run --bun biome lint --write",
+        "lint:write": "bun run --bun biome lint --write",
+        "lint:check": "bun run --bun biome lint --check",
         "dev": "bun run --watch src/main.ts",
         "build": "bun build src/main.ts --outdir=dist --target=bun --minify --define:process.env.NODE_ENV='\"production\"'",
         "start": "NODE_ENV=production bun run dist/main.ts"
