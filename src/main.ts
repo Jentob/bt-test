@@ -9,7 +9,7 @@ let peripheral: Peripheral | null = null;
 let hrCharacteristic: Characteristic | null = null;
 
 let isRecording = false;
-let recordingId: string | null = null;
+let recordingId = "";
 let recordFile: Bun.FileSink | null = null;
 
 const server = Bun.serve({
@@ -19,6 +19,8 @@ const server = Bun.serve({
         "/connection-status": () =>
             Response.json({ status: peripheral?.state === "connected" ? "connected" : "disconnected" }),
         "/record/start": async (request) => {
+            if (request.method !== "POST")
+                return Response.json({ message: "Method not allowed" }, { status: 405 });
             if (isRecording) return Response.json({ message: "Already recording" }, { status: 400 });
 
             try {
@@ -32,15 +34,17 @@ const server = Bun.serve({
 
             isRecording = true;
 
+            mkdirSync("data", { recursive: true });
             const filePath = path.join("data", `${recordingId}.csv`);
             recordFile = Bun.file(filePath).writer();
-            mkdirSync("data", { recursive: true });
             if (!existsSync(filePath) || Bun.file(filePath).size === 0)
                 await recordFile.write("timestamp,heart_rate\n");
 
             return Response.json({ message: "Recording started", id: recordingId });
         },
-        "/record/stop": async () => {
+        "/record/stop": async (request) => {
+            if (request.method !== "POST")
+                return Response.json({ message: "Method not allowed" }, { status: 405 });
             if (!isRecording) return Response.json({ message: "Not recording" }, { status: 400 });
 
             if (recordFile) {
@@ -49,7 +53,7 @@ const server = Bun.serve({
             }
             isRecording = false;
             const stoppedId = recordingId;
-            recordingId = null;
+            recordingId = "";
 
             return Response.json({ message: "Recording stopped", id: stoppedId });
         },

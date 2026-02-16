@@ -21,16 +21,20 @@ export default function App() {
             setWsStatus("Connecting");
             ws.current = new WebSocket("ws://localhost:3000");
 
-            ws.current.onopen = () => setWsStatus("Connected");
+            ws.current.onopen = () => {
+                setWsStatus("Connected");
+                ws.current.send(JSON.stringify({ type: "subscribe", channel: "hr" }));
+            };
             ws.current.onclose = () => {
                 setWsStatus("Disconnected");
-                retryTimeout = setTimeout(connect, 3000);
+                setHrSensorConnected(false);
+                setHrValue(0);
+                retryTimeout = setTimeout(() => connect, 10000);
             };
             ws.current.onerror = () => setWsStatus("Error");
         };
         connect();
 
-        ws.current.send(JSON.stringify({ type: "subscribe", channel: "hr" }));
         fetch("/record/status")
             .then((res) => res.json())
             .then((data) => {
@@ -44,7 +48,7 @@ export default function App() {
             if (data.type === "hr") {
                 if (data.value) {
                     setHrValue(data.value);
-                    if (!hrSensorConnected) setHrSensorConnected(true);
+                    setHrSensorConnected(true);
                 } else {
                     setHrValue(0);
                     setHrSensorConnected(false);
@@ -56,7 +60,7 @@ export default function App() {
             ws.current.close();
             clearTimeout(retryTimeout);
         };
-    }, [hrSensorConnected]);
+    }, []);
 
     return (
         <ThemeProvider defaultTheme="system" storageKey="ui-theme">
@@ -92,8 +96,26 @@ export default function App() {
                                 type="submit"
                                 className="cursor-pointer"
                                 variant={recording ? "destructive" : "default"}
+                                disabled={!candidateId.trim() || wsStatus !== "Connected" || !hrSensorConnected}
+                                onClick={() => {
+                                    if (recording) {
+                                        fetch("/record/stop", { method: "POST" }).then(
+                                            (response) => response.ok && setRecording(false),
+                                        );
+                                    } else {
+                                        fetch("/record/start", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ id: candidateId }),
+                                        }).then((response) => {
+                                            if (response.ok) {
+                                                setRecording(true);
+                                            }
+                                        });
+                                    }
+                                }}
                             >
-                                {recording ? "Stop Recording" : "Start Recording"}
+                                {recording ? <span className="text-center w-[15ch]">Stop Recording</span> : "Start Recording"}
                             </Button>
                         </div>
                     </CardContent>
