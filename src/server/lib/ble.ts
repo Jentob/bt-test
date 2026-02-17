@@ -3,11 +3,16 @@ import { registerShutdownFunction } from "./shutdown";
 
 const HR_SERVICE_UUID = "180d";
 const HR_MEASUREMENT_CHARACTERISTIC_UUID = "2a37";
-const PERIPHERAL_NAME = "Polar";
 
-export const getHRPeripheral = async (timeoutMs = 20 * 1000): Promise<Peripheral | null> => {
-    await noble.waitForPoweredOnAsync();
+await noble.waitForPoweredOnAsync();
 
+export const getHRPeripheral = async ({
+    timeoutMs = 20 * 1000,
+    nameFilter = "",
+}: {
+    timeoutMs?: number;
+    nameFilter?: string;
+} = {}): Promise<Peripheral | null> => {
     const onSigint = async () => {
         await noble.stopScanningAsync();
     };
@@ -23,8 +28,8 @@ export const getHRPeripheral = async (timeoutMs = 20 * 1000): Promise<Peripheral
             }, timeoutMs);
 
             noble.on("discover", (peripheral) => {
-                if (peripheral.advertisement.localName?.toLowerCase().includes(PERIPHERAL_NAME.toLocaleLowerCase())) {
-                    console.log(`Found peripheral: ${peripheral.advertisement.localName}`);
+                if (peripheral.advertisement.localName?.toLowerCase().includes(nameFilter.toLowerCase())) {
+                    console.log(`Found peripheral: ${peripheral.advertisement.localName}, id: ${peripheral.id}`);
                     clearTimeout(timeout);
                     resolve(peripheral);
                 }

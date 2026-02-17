@@ -1,5 +1,7 @@
-import { createRoot } from "react-dom/client";
+import { render } from "preact";
 import App from "./app";
 
-const root = createRoot(document.getElementById("app")!);
-root.render(<App />);
+const root = document.getElementById("app");
+if (!root) throw new Error("Root element not found");
+
+render(<App />, root);

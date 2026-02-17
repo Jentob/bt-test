@@ -19,12 +19,15 @@
         "skipLibCheck": true,
         "noEmit": true,
         "jsx": "react-jsx",
+        "jsxImportSource": "preact",
         "forceConsistentCasingInFileNames": true,
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"],
             "@client/*": ["src/client/*"],
-            "@shadcn/*": ["src/client/shadcn/*"]
+            "@server/*": ["src/server/*"],
+            "react": ["./node_modules/preact/compat/"],
+            "react-dom": ["./node_modules/preact/compat/"]
         }
     },
     "exclude": ["dist"]

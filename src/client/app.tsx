@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { ThemeProvider } from "./shadcn/components/theme-provider";
-import { Button } from "./shadcn/components/ui/button";
-import { Card, CardContent } from "./shadcn/components/ui/card";
-import { Input } from "./shadcn/components/ui/input";
-import { Label } from "./shadcn/components/ui/label";
-import { Toaster } from "./shadcn/components/ui/sonner";
+import { ThemeProvider } from "./components/theme-provider";
+import { Button } from "./components/ui/button";
+import { Card, CardContent } from "./components/ui/card";
+import { Input } from "./components/ui/input";
+import { Label } from "./components/ui/label";
+import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
     const ws = useRef<WebSocket>(null as unknown as WebSocket);
@@ -89,7 +89,7 @@ export default function App() {
                                     required
                                     disabled={recording}
                                     value={candidateId}
-                                    onChange={(e) => setCandidateId(e.target.value)}
+                                    onChange={(e) => setCandidateId(e.currentTarget.value)}
                                 />
                             </div>
                             <Button
