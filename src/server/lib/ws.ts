@@ -12,16 +12,17 @@ export type wsOutgoing<T = unknown> = {
     timestamp: number | null;
 };
 
-export function webSocketHelper(server: Bun.Server<undefined>) {
-    function publish<T>(
-        channel: string,
-        {
-            type = "event",
-            data,
-            timestamp = Date.now(),
-        }: { type?: wsOutgoing<T>["type"]; data: T; timestamp?: number | null },
-    ) {
-        server.publish(channel, JSON.stringify({ channel, type, data, timestamp } satisfies wsOutgoing<T>));
-    }
-    return { publish };
-}
+export const webSocketHelper = (server: Bun.Server<undefined>) => {
+    return {
+        publish: <T>(
+            channel: string,
+            {
+                type = "event",
+                data,
+                timestamp = Date.now(),
+            }: { type?: wsOutgoing<T>["type"]; data: T; timestamp?: number | null },
+        ) => {
+            server.publish(channel, JSON.stringify({ channel, type, data, timestamp } satisfies wsOutgoing<T>));
+        },
+    };
+};
