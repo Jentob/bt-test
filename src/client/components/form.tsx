@@ -15,13 +15,18 @@ export default function Form({
     setRecording: Dispatch<SetStateAction<{ isRecording: boolean; recordingId: string }>>;
     disableSubmit: boolean;
 }) {
-    const onSubmit = () => {
+    const onSubmit = (e: Event) => {
+        e.preventDefault();
+        if (disableSubmit) return;
         if (recording.isRecording) {
-            fetch("/api/record/stop", { method: "POST" }).then(
-                (response) => response.ok && setRecording((p) => ({ ...p, isRecording: false })),
-            );
+            fetch("/api/record/stop", { method: "POST" }).then((response) => {
+                if (response.ok) {
+                    setRecording((p) => ({ ...p, isRecording: false }));
+                    toast.success(`Recording with ID ${recording.recordingId} stopped.`);
+                }
+            });
         } else {
-            fetch("/record/start", {
+            fetch("/api/record/start", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id: recording.recordingId }),
@@ -42,33 +47,34 @@ export default function Form({
     return (
         <Card>
             <CardContent>
-                <div className="flex gap-6 items-end">
-                    <div className="grid gap-2">
-                        <Label htmlFor="candidate">Candidate ID</Label>
-                        <Input
-                            id="candidate"
-                            type="text"
-                            placeholder="Enter candidate ID"
-                            required
-                            disabled={recording.isRecording}
-                            value={recording.recordingId}
-                            onChange={(e) => setRecording((p) => ({ ...p, recordingId: e.currentTarget.value }))}
-                        />
+                <form onSubmit={onSubmit}>
+                    <div className="flex gap-6 items-end">
+                        <div className="grid gap-2">
+                            <Label htmlFor="participant">Participant ID</Label>
+                            <Input
+                                id="participant"
+                                type="text"
+                                placeholder="Enter participant ID"
+                                required
+                                disabled={recording.isRecording}
+                                value={recording.recordingId}
+                                onChange={(e) => setRecording((p) => ({ ...p, recordingId: e.currentTarget.value }))}
+                            />
+                        </div>
+                        <Button
+                            type="submit"
+                            className="cursor-pointer"
+                            variant={recording.isRecording ? "destructive" : "default"}
+                            disabled={!recording.recordingId.trim() || disableSubmit}
+                        >
+                            {recording.isRecording ? (
+                                <span className="text-center w-[15ch]">Stop Recording</span>
+                            ) : (
+                                <span>Start Recording</span>
+                            )}
+                        </Button>
                     </div>
-                    <Button
-                        type="submit"
-                        className="cursor-pointer"
-                        variant={recording.isRecording ? "destructive" : "default"}
-                        disabled={!recording.recordingId.trim() || disableSubmit}
-                        onClick={onSubmit}
-                    >
-                        {recording.isRecording ? (
-                            <span className="text-center w-[15ch]">Stop Recording</span>
-                        ) : (
-                            <span>Start Recording</span>
-                        )}
-                    </Button>
-                </div>
+                </form>
             </CardContent>
         </Card>
     );

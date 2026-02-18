@@ -37,23 +37,23 @@ export default function App() {
         connect();
 
         ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.channel === "hr") {
-                if (data.type === "state") {
+            const message = JSON.parse(event.data);
+            if (message.channel === "hr") {
+                if (message.type === "state") {
                     setHrSensor((p) => ({
                         ...p,
-                        isConnected: data.data.isHrSensorConnected,
+                        isConnected: message.data.isHrSensorConnected,
                     }));
                     setRecording({
-                        isRecording: data.data.isRecording,
-                        recordingId: data.data.recordingId,
+                        isRecording: message.data.isRecording,
+                        recordingId: message.data.recordingId,
                     });
                 }
-                if (data.type === "event" && data.data.type === "hr") {
-                    if (data.data.value) {
+                if (message.type === "event") {
+                    if (message.data.hrBpm !== null) {
                         setHrSensor({
                             isConnected: true,
-                            hrBpm: data.data.value,
+                            hrBpm: message.data.hrBpm,
                         });
                     } else {
                         setHrSensor({
@@ -79,14 +79,24 @@ export default function App() {
                 {recording.recordingId || "None"}
             </p>
             <main className="min-h-screen flex flex-col items-center justify-center gap-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Heart Rate (BPM)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-8xl font-bold w-[3ch] inline-block text-end">{hrSensor.hrBpm ?? "-"}</p>
-                    </CardContent>
-                </Card>
+                <div className="flex gap-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Heart Rate (BPM)</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-8xl font-bold w-[3ch] inline-block text-end">{hrSensor.hrBpm ?? "-"}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Heart Rate Variability</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-8xl font-bold">{hrSensor.isConnected ? "Connected" : "Disconnected"}</p>
+                        </CardContent>
+                    </Card>
+                </div>
                 <Form
                     recording={recording}
                     setRecording={setRecording}

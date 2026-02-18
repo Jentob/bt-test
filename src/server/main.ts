@@ -11,17 +11,11 @@ const main = async () => {
 
     let peripheral: Peripheral | null = null;
     let hrCharacteristic: Characteristic | null = null;
+
     registerShutdownFunction(async () => {
         if (hrCharacteristic) await hrCharacteristic.unsubscribeAsync();
         if (peripheral?.state === "connected") await peripheral.disconnectAsync();
     });
-
-    peripheral = await getHRPeripheral({ nameFilter: "Polar" });
-    if (!peripheral) return shutdown();
-    await peripheral.connectAsync();
-    hrCharacteristic = await getHRCharacteristic(peripheral);
-    if (!hrCharacteristic) return shutdown();
-    await hrCharacteristic.subscribeAsync();
 
     let isRecording = false;
     let recordingId = "";
@@ -163,7 +157,14 @@ const main = async () => {
 
     const { publish: wsPublish } = webSocketHelper(server);
 
-    peripheral.on("disconnect", () => wsPublish("hr", { data: { type: "hr", value: null } }));
+    peripheral = await getHRPeripheral({ nameFilter: "Polar" });
+    if (!peripheral) return shutdown();
+    await peripheral.connectAsync();
+    hrCharacteristic = await getHRCharacteristic(peripheral);
+    if (!hrCharacteristic) return shutdown();
+    await hrCharacteristic.subscribeAsync();
+
+    peripheral.on("disconnect", () => wsPublish("hr", { data: { hrBpm: null } }));
 
     hrCharacteristic.on("data", async (data) => {
         const flags = data.readUInt8(0);
