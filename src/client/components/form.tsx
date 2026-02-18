@@ -1,3 +1,4 @@
+import type { SetStateAction } from "preact/compat";
 import type { Dispatch } from "preact/hooks";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
@@ -11,7 +12,7 @@ export default function Form({
     disableSubmit = false,
 }: {
     recording: { isRecording: boolean; recordingId: string };
-    setRecording: Dispatch<React.SetStateAction<{ isRecording: boolean; recordingId: string }>>;
+    setRecording: Dispatch<SetStateAction<{ isRecording: boolean; recordingId: string }>>;
     disableSubmit: boolean;
 }) {
     const onSubmit = () => {

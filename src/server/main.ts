@@ -164,6 +164,7 @@ const main = async () => {
     const { publish: wsPublish } = webSocketHelper(server);
 
     peripheral.on("disconnect", () => wsPublish("hr", { data: { type: "hr", value: null } }));
+
     hrCharacteristic.on("data", async (data) => {
         const flags = data.readUInt8(0);
 

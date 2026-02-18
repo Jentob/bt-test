@@ -6,7 +6,8 @@ export const { registerShutdownFunction, shutdown } = (() => {
             shutdownFunctions.add(fn);
             return () => shutdownFunctions.delete(fn);
         },
-        shutdown: async () => {
+        shutdown: async (): Promise<never> => {
+            // @ts-expect-error
             if (isShuttingDown) return;
             isShuttingDown = true;
             console.log("Shutting down...");
@@ -25,3 +26,8 @@ export const { registerShutdownFunction, shutdown } = (() => {
 
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
+process.on("uncaughtException", async (error) => {
+    console.error("Uncaught exception:\n", error);
+    process.exitCode = 1;
+    await shutdown();
+});
