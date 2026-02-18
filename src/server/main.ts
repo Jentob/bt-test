@@ -28,7 +28,7 @@ const main = async () => {
     let file: Awaited<ReturnType<typeof filewritingHelper>> | null = null;
 
     const server = Bun.serve({
-        port: process.env.PORT ? Number(process.env.PORT) : 3000,
+        port: 3000,
         development: process.env.NODE_ENV === "development" && {
             hmr: false,
             console: true,
