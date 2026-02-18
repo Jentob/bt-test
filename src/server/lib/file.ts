@@ -2,7 +2,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { registerShutdownFunction } from "./shutdown";
 
-export const filewritingHelper = async (filePath: string) => {
+export const fileWritingHelper = async (filePath: string) => {
     mkdirSync(dirname(filePath), { recursive: true });
     const recordFile = Bun.file(filePath).writer();
     if (!existsSync(filePath) || Bun.file(filePath).size === 0) await recordFile.write("timestamp,heart_rate_bpm\n");

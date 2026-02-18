@@ -2,8 +2,9 @@ import path from "node:path";
 import noble, { type Characteristic, type Peripheral } from "@stoprocent/noble";
 import client from "src/client/index.html";
 import { getHRCharacteristic, getHRPeripheral } from "./lib/ble";
-import { filewritingHelper } from "./lib/file";
+import { fileWritingHelper } from "./lib/file";
 import { registerShutdownFunction, shutdown } from "./lib/shutdown";
+import { json } from "./lib/utils";
 import { webSocketHelper, type wsOutgoing } from "./lib/ws";
 
 const main = async () => {
@@ -38,35 +39,27 @@ const main = async () => {
             "/": client,
             "/api/record/start": {
                 async POST(request) {
-                    if (isRecording)
-                        return Response.json(
-                            {
-                                isRecording: isRecording,
-                                recordingId,
-                            },
-                            { status: 409 },
-                        );
+                    if (isRecording) return json({ isRecording, recordingId }, 409);
 
                     try {
                         const data = await request.json();
                         recordingId = data.id;
                     } catch (error) {
                         console.error("Invalid JSON in request body:\n", error);
-                        return Response.json({ message: "Invalid request body" }, { status: 400 });
+                        return json({ message: "Invalid request body" }, 400);
                     }
-                    if (!recordingId) return Response.json({ message: "Missing id" }, { status: 400 });
+                    if (!recordingId) return json({ message: "Missing id" }, 400);
 
                     isRecording = true;
 
-                    const filePath = path.join("data", `${recordingId}.csv`);
-                    file = await filewritingHelper(filePath);
+                    file = await fileWritingHelper(path.join("data", `${recordingId}.csv`));
 
-                    return Response.json({ isRecording, recordingId });
+                    return json({ isRecording, recordingId });
                 },
             },
             "/api/record/stop": {
                 async POST() {
-                    if (!isRecording) return Response.json({ message: "No active recording" }, { status: 400 });
+                    if (!isRecording) return json({ message: "No active recording" }, 400);
 
                     if (file) {
                         await file.end();
@@ -76,27 +69,24 @@ const main = async () => {
                     const stoppedId = recordingId;
                     recordingId = "";
 
-                    return Response.json({ isRecording, recordingId: stoppedId });
+                    return json({ isRecording, recordingId: stoppedId });
                 },
             },
             "/api/record/status": {
                 GET() {
-                    return Response.json({
-                        isRecording: isRecording,
-                        recordingId,
-                    });
+                    return json({ isRecording: isRecording, recordingId });
                 },
             },
         },
 
         fetch(request) {
             if (server.upgrade(request)) return;
-            return Response.json({ status: "Not found" }, { status: 404 });
+            return json({ status: "Not found" }, 404);
         },
 
         error(error) {
             console.error(error);
-            return Response.json({ status: "Internal Server Error" }, { status: 500 });
+            return json({ status: "Internal Server Error" }, 500);
         },
 
         websocket: {
@@ -166,6 +156,7 @@ const main = async () => {
     peripheral.on("disconnect", () => wsPublish("hr", { data: { type: "hr", value: null } }));
 
     hrCharacteristic.on("data", async (data) => {
+        //ChatGPT funksjon
         const flags = data.readUInt8(0);
 
         const hr16 = flags & 0x01;
