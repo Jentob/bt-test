@@ -5,7 +5,7 @@ import { registerShutdownFunction } from "./shutdown";
 export const filewritingHelper = async (filePath: string) => {
     mkdirSync(dirname(filePath), { recursive: true });
     const recordFile = Bun.file(filePath).writer();
-    if (!existsSync(filePath) || Bun.file(filePath).size === 0) await recordFile.write("timestamp,heart_rate\n");
+    if (!existsSync(filePath) || Bun.file(filePath).size === 0) await recordFile.write("timestamp,heart_rate_bpm\n");
 
     const removeShutdownFunction = registerShutdownFunction(async () => {
         await recordFile.end();

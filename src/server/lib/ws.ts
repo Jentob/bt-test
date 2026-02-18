@@ -7,7 +7,7 @@ export type wsIncoming<T = unknown> = {
 
 export type wsOutgoing<T = unknown> = {
     channel: string;
-    type: "event" | "subscribed" | "unsubscribed" | "error" | "snapshot";
+    type: "event" | "subscribed" | "unsubscribed" | "error" | "state";
     data: T;
     timestamp: number | null;
 };
