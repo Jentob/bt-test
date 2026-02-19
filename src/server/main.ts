@@ -3,9 +3,9 @@ import noble, { type Characteristic, type Peripheral } from "@stoprocent/noble";
 import client from "src/client/index.html";
 import { getHRCharacteristic, getHRPeripheral } from "./lib/ble";
 import { fileWritingHelper } from "./lib/file";
+import { json } from "./lib/response";
 import { registerShutdownFunction, shutdown } from "./lib/shutdown";
-import { json } from "./lib/utils";
-import { webSocketHelper, type wsOutgoing } from "./lib/ws";
+import { type WsOutgoing, webSocketHelper } from "./lib/ws";
 
 const main = async () => {
     await noble.waitForPoweredOnAsync();
@@ -20,7 +20,7 @@ const main = async () => {
 
     let isRecording = false;
     let recordingId = "";
-    let file: Awaited<ReturnType<typeof filewritingHelper>> | null = null;
+    let file: Awaited<ReturnType<typeof fileWritingHelper>> | null = null;
 
     const server = Bun.serve({
         port: 3000,
@@ -100,7 +100,7 @@ const main = async () => {
                                     type: "unsubscribed",
                                     data: null,
                                     timestamp: Date.now(),
-                                } satisfies wsOutgoing),
+                                } satisfies WsOutgoing),
                             );
                             return;
                         }
@@ -114,7 +114,7 @@ const main = async () => {
                                     type: "subscribed",
                                     data: null,
                                     timestamp: Date.now(),
-                                } satisfies wsOutgoing),
+                                } satisfies WsOutgoing),
                             );
                             ws.send(
                                 JSON.stringify({
@@ -126,7 +126,7 @@ const main = async () => {
                                         recordingId,
                                     },
                                     timestamp: Date.now(),
-                                } satisfies wsOutgoing),
+                                } satisfies WsOutgoing),
                             );
                             return;
                         }
@@ -154,7 +154,7 @@ const main = async () => {
     if (!hrCharacteristic) return shutdown();
     await hrCharacteristic.subscribeAsync();
 
-    peripheral.on("disconnect", () => wsPublish("hr", { data: { hrBpm: null } }));
+    peripheral.on("disconnect", () => wsPublish("hr", { hrBpm: null }));
 
     hrCharacteristic.on("data", async (data) => {
         //ChatGPT funksjon
@@ -188,7 +188,7 @@ const main = async () => {
             }
         }
 
-        wsPublish("hr", { data: { hrBpm: heartRate, rrIntervals } });
+        wsPublish("hr", { hrBpm: heartRate, rrIntervals });
 
         if (isRecording && file) await file.writeLine(Date.now(), heartRate);
     });

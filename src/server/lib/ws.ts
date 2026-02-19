@@ -1,11 +1,11 @@
-export type wsIncoming<T = unknown> = {
+export type WsIncoming<T = unknown> = {
     type: "event" | "action" | "subscribe" | "unsubscribe";
     channel: string;
     event?: string;
     data?: T;
 };
 
-export type wsOutgoing<T = unknown> = {
+export type WsOutgoing<T = unknown> = {
     channel: string;
     type: "event" | "subscribed" | "unsubscribed" | "error" | "state";
     data: T;
@@ -15,14 +15,12 @@ export type wsOutgoing<T = unknown> = {
 export const webSocketHelper = (server: Bun.Server<undefined>) => {
     return {
         publish: <T>(
-            channel: string,
-            {
-                type = "event",
-                data,
-                timestamp = Date.now(),
-            }: { type?: wsOutgoing<T>["type"]; data: T; timestamp?: number | null },
+            channel: WsOutgoing<T>["channel"],
+            data: WsOutgoing<T>["data"],
+            type: WsOutgoing<T>["type"] = "event",
+            timestamp: WsOutgoing<T>["timestamp"] = Date.now(),
         ) => {
-            server.publish(channel, JSON.stringify({ channel, type, data, timestamp } satisfies wsOutgoing<T>));
+            server.publish(channel, JSON.stringify({ channel, type, data, timestamp } satisfies WsOutgoing<T>));
         },
     };
 };

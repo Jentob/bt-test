@@ -11,7 +11,7 @@ export const { registerShutdownFunction, shutdown } = (() => {
             if (isShuttingDown) return;
             isShuttingDown = true;
             console.log("Shutting down...");
-            for (const fn of shutdownFunctions) {
+            for (const fn of [...shutdownFunctions].reverse()) {
                 try {
                     await fn();
                 } catch (error) {
