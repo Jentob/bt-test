@@ -156,8 +156,6 @@ const main = async () => {
 
     peripheral.on("disconnect", () => wsPublish("hr", { hrBpm: null }));
 
-    const rrBuffer: number[] = [];
-    let totalDuration = 0;
     hrCharacteristic.on("data", async (data) => {
         //ChatGPT funksjon
         const flags = data.readUInt8(0);
@@ -191,33 +189,7 @@ const main = async () => {
         }
         // ---
 
-        const WINDOW_MS = 60_000;
-        function addRRIntervals(newRR: number[]) {
-            for (const rr of newRR) {
-                rrBuffer.push(rr);
-                totalDuration += rr;
-            }
-
-            while (totalDuration > WINDOW_MS && rrBuffer.length > 0) {
-                const removed = rrBuffer.shift();
-                if (removed) totalDuration -= removed;
-            }
-        }
-
-        function calculateRmssd(rr: number[]): number {
-            if (rr.length < 2) return 0;
-
-            let sumSq = 0;
-            for (let i = 0; i < rr.length - 1; i++) {
-                const diff = rr[i + 1] - rr[i];
-                sumSq += diff * diff;
-            }
-
-            return Math.sqrt(sumSq / (rr.length - 1));
-        }
-
-        addRRIntervals(rrIntervals);
-        wsPublish("hr", { hrBpm: heartRate, rmssd: calculateRmssd(rrBuffer) });
+        wsPublish("hr", { hrBpm: heartRate });
 
         if (isRecording && file) {
             for (const rrInterval of rrIntervals) {

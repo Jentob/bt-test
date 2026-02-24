@@ -33,11 +33,11 @@ export default function Form({
             }).then((response) => {
                 if (response.ok) {
                     setRecording((p) => ({ ...p, isRecording: true }));
-                    toast.success(`Recording started with ID ${recording.recordingId}.`);
+                    toast.success(`Recording started with ID "${recording.recordingId}".`);
                 } else if (response.status === 409) {
                     response.json().then((data) => {
                         setRecording(data);
-                        toast.error(`Recording has already been started with ID ${data.recordingId}.`);
+                        toast.error(`Recording has already been started with ID "${data.recordingId}".`);
                     });
                 }
             });

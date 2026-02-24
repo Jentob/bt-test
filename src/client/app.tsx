@@ -10,7 +10,6 @@ export default function App() {
     const [hrSensor, setHrSensor] = useState({
         isConnected: false,
         hrBpm: null as number | null,
-        hrv: null as number | null,
     });
     const [recording, setRecording] = useState({
         isRecording: false,
@@ -31,7 +30,6 @@ export default function App() {
                 setHrSensor({
                     isConnected: false,
                     hrBpm: null,
-                    hrv: null,
                 });
             };
             ws.current.onerror = () => setWsStatus("Error");
@@ -56,13 +54,11 @@ export default function App() {
                         setHrSensor({
                             isConnected: true,
                             hrBpm: message.data.hrBpm,
-                            hrv: message.data.rmssd,
                         });
                     } else {
                         setHrSensor({
                             isConnected: false,
                             hrBpm: null,
-                            hrv: null,
                         });
                     }
                 }
@@ -83,24 +79,14 @@ export default function App() {
                 {recording.recordingId || "None"}
             </p>
             <main className="min-h-screen flex flex-col items-center justify-center gap-4">
-                <div className="flex gap-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Heart Rate (BPM)</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-8xl font-bold w-[3ch] inline-block text-end">{hrSensor.hrBpm ?? "-"}</p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Heart Rate Variability</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-8xl font-bold w-[3ch] inline-block text-end">{hrSensor.hrv ?? "-"}</p>
-                        </CardContent>
-                    </Card>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Heart Rate (BPM)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-8xl font-bold w-[3ch] inline-block text-end">{hrSensor.hrBpm ?? "-"}</p>
+                    </CardContent>
+                </Card>
                 <Form
                     recording={recording}
                     setRecording={setRecording}
