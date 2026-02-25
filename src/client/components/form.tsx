@@ -15,32 +15,39 @@ export default function Form({
     setRecording: Dispatch<SetStateAction<{ isRecording: boolean; recordingId: string }>>;
     disableSubmit: boolean;
 }) {
-    const onSubmit = (e: Event) => {
+    const onSubmit = async (e: Event) => {
         e.preventDefault();
         if (disableSubmit) return;
-        if (recording.isRecording) {
-            fetch("/api/record/stop", { method: "POST" }).then((response) => {
+
+        try {
+            if (recording.isRecording) {
+                const response = await fetch("/api/record/stop", {
+                    method: "POST",
+                });
+
                 if (response.ok) {
                     setRecording((p) => ({ ...p, isRecording: false }));
                     toast.success(`Recording with ID ${recording.recordingId} stopped.`);
                 }
-            });
-        } else {
-            fetch("/api/record/start", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: recording.recordingId }),
-            }).then((response) => {
+            } else {
+                const response = await fetch("/api/record/start", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: recording.recordingId }),
+                });
+
                 if (response.ok) {
                     setRecording((p) => ({ ...p, isRecording: true }));
                     toast.success(`Recording started with ID "${recording.recordingId}".`);
                 } else if (response.status === 409) {
-                    response.json().then((data) => {
-                        setRecording(data);
-                        toast.error(`Recording has already been started with ID "${data.recordingId}".`);
-                    });
+                    const data = await response.json();
+                    setRecording(data);
+                    toast.error(`Recording has already been started with ID "${data.recordingId}".`);
                 }
-            });
+            }
+        } catch (error) {
+            console.error("Request failed:", error);
+            toast.error("An unexpected error occurred.");
         }
     };
 
