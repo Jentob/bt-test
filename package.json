@@ -8,8 +8,8 @@
         "lint": "bun run --bun biome lint --write",
         "lint:write": "bun run --bun biome lint --write",
         "lint:check": "bun run --bun biome lint --check",
-        "dev": "bun run --watch src/server/main.ts",
-        "start": "NODE_ENV=production bun run src/server/main.ts"
+        "dev": "bun run --watch src/main.ts",
+        "start": "NODE_ENV=production bun run src/main.ts"
     },
     "dependencies": {
         "@fontsource-variable/geist-mono": "^5.2.7",

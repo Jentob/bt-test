@@ -1,5 +1,5 @@
 import type { ComponentProps } from "preact";
-import { cn } from "@/client/lib/utils";
+import { cn } from "@/client/utils";
 
 function Input({ className, ...props }: ComponentProps<"input">) {
     return (

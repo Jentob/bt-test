@@ -1,6 +1,6 @@
 import type { ComponentProps } from "preact";
 
-import { cn } from "@/client/lib/utils";
+import { cn } from "@/client/utils";
 
 function Label({ className, ...props }: ComponentProps<"label">) {
     return (
