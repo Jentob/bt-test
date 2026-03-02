@@ -1,7 +1,7 @@
 import path from "node:path";
 import noble, { type Characteristic, type Peripheral } from "@stoprocent/noble";
 import client from "src/client/index.html";
-import { getHRCharacteristic, getHRPeripheral } from "./lib/ble";
+import { getHRCharacteristic, getHRData, getHRPeripheral } from "./lib/ble";
 import { fileWritingHelper } from "./lib/file";
 import { json } from "./lib/response";
 import { registerShutdownFunction, shutdown } from "./lib/shutdown";
@@ -40,9 +40,9 @@ const main = async () => {
                         recordingId = data.id;
                     } catch (error) {
                         console.error("Invalid JSON in request body:\n", error);
-                        return json({ message: "Invalid request body" }, 400);
+                        return json({ message: "Failed to parse JSON" }, 400);
                     }
-                    if (!recordingId) return json({ message: "Missing id" }, 400);
+                    if (!recordingId) return json({ message: "Missing ID" }, 400);
 
                     isRecording = true;
 
@@ -66,27 +66,21 @@ const main = async () => {
                     return json({ isRecording, recordingId: stoppedId });
                 },
             },
-            "/api/record/status": {
-                GET() {
-                    return json({ isRecording: isRecording, recordingId });
-                },
-            },
+            "/api/record/status": { GET: () => json({ isRecording, recordingId }) },
         },
 
         fetch(request) {
             if (server.upgrade(request)) return;
-            return json({ status: "Not found" }, 404);
+            return json({ message: "Not Found" }, 404);
         },
 
         error(error) {
             console.error(error);
-            return json({ status: "Internal Server Error" }, 500);
+            return json({ message: "Internal Server Error" }, 500);
         },
 
         websocket: {
-            open() {
-                console.log("Client connected");
-            },
+            open: () => console.log("Client connected"),
             message(ws, message) {
                 try {
                     const data = JSON.parse(message.toString());
@@ -157,37 +151,7 @@ const main = async () => {
     peripheral.on("disconnect", () => wsPublish("hr", { hrBpm: null }));
 
     hrCharacteristic.on("data", async (data) => {
-        //ChatGPT funksjon
-        const flags = data.readUInt8(0);
-
-        const hr16 = flags & 0x01;
-        const rrPresent = flags & 0x10;
-
-        let offset = 1;
-
-        let heartRate: number;
-        if (hr16) {
-            heartRate = data.readUInt16LE(offset);
-            offset += 2;
-        } else {
-            heartRate = data.readUInt8(offset);
-            offset += 1;
-        }
-
-        const energyPresent = flags & 0x08;
-        if (energyPresent) offset += 2;
-
-        const rrIntervals: number[] = [];
-
-        if (rrPresent) {
-            while (offset + 1 < data.length) {
-                const rrRaw = data.readUInt16LE(offset);
-                const rrMs = (rrRaw * 1000) / 1024;
-                rrIntervals.push(rrMs);
-                offset += 2;
-            }
-        }
-        // ---
+        const { heartRate, rrIntervals } = getHRData(data);
 
         wsPublish("hr", { hrBpm: heartRate });
 

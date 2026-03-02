@@ -6,8 +6,7 @@ export const { registerShutdownFunction, shutdown } = (() => {
             shutdownFunctions.add(fn);
             return () => shutdownFunctions.delete(fn);
         },
-        shutdown: async (): Promise<never> => {
-            // @ts-expect-error
+        shutdown: async () => {
             if (isShuttingDown) return;
             isShuttingDown = true;
             console.log("Shutting down...");

@@ -58,3 +58,38 @@ export const getHRCharacteristic = async (peripheral: Peripheral): Promise<Chara
     }
     return null;
 };
+
+// ChatGPT funksjon
+export const getHRData = (data: Buffer) => {
+    const flags = data.readUInt8(0);
+
+    const hr16 = flags & 0x01;
+    const rrPresent = flags & 0x10;
+
+    let offset = 1;
+
+    let heartRate: number;
+    if (hr16) {
+        heartRate = data.readUInt16LE(offset);
+        offset += 2;
+    } else {
+        heartRate = data.readUInt8(offset);
+        offset += 1;
+    }
+
+    const energyPresent = flags & 0x08;
+    if (energyPresent) offset += 2;
+
+    const rrIntervals: number[] = [];
+
+    if (rrPresent) {
+        while (offset + 1 < data.length) {
+            const rrRaw = data.readUInt16LE(offset);
+            const rrMs = (rrRaw * 1000) / 1024;
+            rrIntervals.push(rrMs);
+            offset += 2;
+        }
+    }
+
+    return { heartRate, rrIntervals };
+};
