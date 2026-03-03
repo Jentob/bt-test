@@ -148,7 +148,10 @@ const main = async () => {
     if (!hrCharacteristic) return shutdown();
     await hrCharacteristic.subscribeAsync();
 
-    peripheral.on("disconnect", () => wsPublish("hr", { hrBpm: null }));
+    peripheral.on("disconnect", () => {
+        wsPublish("hr", { hrBpm: null });
+        console.error("HR Sensor disconnected!");
+    });
 
     hrCharacteristic.on("data", async (data) => {
         const { heartRate, rrIntervals } = getHRData(data);
