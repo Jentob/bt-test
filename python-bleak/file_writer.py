@@ -21,7 +21,7 @@ class FileWriter:
         self.file = open(self.file_path, "a", encoding="utf-8", buffering=1)
 
         if self.file_path.stat().st_size == 0:
-            self.write_line("timestamp", "heart_rate_bpm", "rr_interval")
+            self.file.write("timestamp,heart_rate_bpm,rr_interval\n")
 
         return self
 
