@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import Form from "./components/form";
+import { HrCard } from "./components/hr-card";
 import { ThemeProvider } from "./components/theme-provider";
-import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
@@ -79,14 +79,7 @@ export default function App() {
                 {recording.recordingId || "None"}
             </p>
             <main className="min-h-screen flex flex-col items-center justify-center gap-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Heart Rate (BPM)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-8xl font-bold w-[3ch] inline-block text-end">{hrSensor.hrBpm ?? "-"}</p>
-                    </CardContent>
-                </Card>
+                <HrCard hrBpm={hrSensor.hrBpm} />
                 <Form
                     recording={recording}
                     setRecording={setRecording}

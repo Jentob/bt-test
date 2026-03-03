@@ -1,25 +1,25 @@
 import asyncio
 import threading
 from typing import Optional
+
 import customtkinter as ctk
-from bleak import BleakScanner, BleakClient
+from bleak import BleakClient, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
-
 
 HR_SERVICE_UUID = "0000180d-0000-1000-8000-00805f9b34fb"
 HR_MEASUREMENT_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
 
 
-class HeartRateApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Heart Rate Monitor")
+class HeartRateApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Heart Rate Monitor")
 
-        self.label = ctk.CTkLabel(root, text="Heart Rate: -- bpm")
+        self.label = ctk.CTkLabel(self, text="Heart Rate: -- bpm")
         self.label.pack(pady=20)
 
-        self.status = ctk.CTkLabel(root, text="Starting...")
+        self.status = ctk.CTkLabel(self, text="Starting...")
         self.status.pack()
 
         self.loop = asyncio.new_event_loop()
@@ -90,9 +90,9 @@ class HeartRateApp:
         else:
             hr = data[1]
 
-        self.root.after(0, self.update_hr, hr)
+        self.after(0, self.update_hr, hr)
 
-    def update_hr(self, hr):
+    def update_hr(self, hr: str | int):
         self.label.configure(text=f"Heart Rate: {hr} bpm")
 
     def update_status(self, text):
@@ -100,6 +100,5 @@ class HeartRateApp:
 
 
 if __name__ == "__main__":
-    root = ctk.CTk()
-    app = HeartRateApp(root)
-    root.mainloop()
+    app = HeartRateApp()
+    app.mainloop()

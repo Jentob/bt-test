@@ -3,7 +3,6 @@ from io import TextIOWrapper
 from pathlib import Path
 from typing import Callable, NoReturn, Optional
 
-
 WriteLineFunction = Callable[[int | str, float, int | str], None | NoReturn]
 CloseFunction = Callable[[], None]
 
