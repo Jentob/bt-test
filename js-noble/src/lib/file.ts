@@ -3,11 +3,12 @@ import { dirname } from "node:path";
 import { registerShutdownFunction } from "./shutdown";
 
 export const fileWritingHelper = async (filePath: string) => {
+    mkdirSync(dirname(filePath), { recursive: true });
+
     const file = Bun.file(filePath);
     const recordFile = file.writer();
     let writerClosed = false;
 
-    mkdirSync(dirname(filePath), { recursive: true });
     if (!(await file.exists()) || file.size === 0) await recordFile.write("timestamp,heart_rate_bpm,rr_interval\n");
 
     const removeShutdownFunction = registerShutdownFunction(async () => {
