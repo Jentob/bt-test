@@ -1,4 +1,4 @@
-from datetime import datetime
+import time
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Callable, NoReturn, Optional
@@ -35,7 +35,7 @@ class FileWriter:
             raise RuntimeError("Cannot write to a closed FileWriter.")
 
         if timestamp is None:
-            timestamp = datetime.now().isoformat()
+            timestamp = int(time.time())
 
         if self.file:
             self.file.write(f"{timestamp},{heart_rate},{rr_interval}\n")
