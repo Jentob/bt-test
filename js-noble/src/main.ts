@@ -21,11 +21,11 @@ registerShutdownFunction(async () => {
 
 export const phases = {
     calibration: "Calibration",
-    "stresser(news)": "Stresser (News)",
+    "stressor(news)": "Stressor (News)",
     "relaxation(news)": "Relaxation (News)",
-    "stresser(tiktok)": "Stresser (TikTok)",
+    "stressor(tiktok)": "Stressor (TikTok)",
     "relaxation(tiktok)": "Relaxation (TikTok)",
-    "stresser(breathing)": "Stresser (Breathing)",
+    "stressor(breathing)": "Stressor (Breathing)",
     "relaxation(breathing)": "Relaxation (Breathing)",
 } as const;
 
