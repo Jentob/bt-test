@@ -1,6 +1,8 @@
 import type { SetStateAction } from "preact/compat";
 import type { Dispatch } from "preact/hooks";
 import { toast } from "sonner";
+import { phases } from "@/main";
+import { apiClient } from "../utils";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
@@ -11,8 +13,18 @@ export default function Form({
     setRecording,
     disableSubmit = false,
 }: {
-    recording: { isRecording: boolean; recordingId: string };
-    setRecording: Dispatch<SetStateAction<{ isRecording: boolean; recordingId: string }>>;
+    recording: {
+        isRecording: boolean;
+        recordingId: string;
+        phase: keyof typeof phases;
+    };
+    setRecording: Dispatch<
+        SetStateAction<{
+            isRecording: boolean;
+            recordingId: string;
+            phase: keyof typeof phases;
+        }>
+    >;
     disableSubmit: boolean;
 }) {
     const onSubmit = async (e: Event) => {
@@ -21,19 +33,15 @@ export default function Form({
 
         try {
             if (recording.isRecording) {
-                const response = await fetch("/api/record/stop", {
-                    method: "POST",
-                });
+                const response = await apiClient.record.stop.$post();
 
                 if (response.ok) {
                     setRecording((p) => ({ ...p, isRecording: false }));
                     toast.success(`Recording with ID ${recording.recordingId} stopped.`);
                 }
             } else {
-                const response = await fetch("/api/record/start", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id: recording.recordingId }),
+                const response = await apiClient.record.start.$post({
+                    json: { id: recording.recordingId, phase: recording.phase },
                 });
 
                 if (response.ok) {
@@ -65,8 +73,32 @@ export default function Form({
                                 required
                                 disabled={recording.isRecording}
                                 value={recording.recordingId}
-                                onChange={(e) => setRecording((p) => ({ ...p, recordingId: e.currentTarget.value }))}
+                                onChange={(e) =>
+                                    setRecording((p) => ({
+                                        ...p,
+                                        recordingId: e.currentTarget.value,
+                                    }))
+                                }
                             />
+                            <Label htmlFor="phase">Phase</Label>
+                            <select
+                                id="phase"
+                                required
+                                disabled={recording.isRecording}
+                                value={String(recording.phase)}
+                                onChange={(e) =>
+                                    setRecording((p) => ({
+                                        ...p,
+                                        phase: e.currentTarget.value as keyof typeof phases,
+                                    }))
+                                }
+                            >
+                                {Object.entries(phases).map(([key, value]) => (
+                                    <option key={key} value={key}>
+                                        {value}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <Button
                             type="submit"

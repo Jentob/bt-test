@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
+import type { phases } from "@/main";
 import Form from "./components/form";
 import { HrCard } from "./components/hr-card";
 import { ThemeProvider } from "./components/theme-provider";
@@ -14,6 +15,7 @@ export default function App() {
     const [recording, setRecording] = useState({
         isRecording: false,
         recordingId: "",
+        phase: "calibration" as keyof typeof phases,
     });
 
     useEffect(() => {
@@ -47,6 +49,7 @@ export default function App() {
                     setRecording({
                         isRecording: message.data.isRecording,
                         recordingId: message.data.recordingId,
+                        phase: message.data.phase,
                     });
                 }
                 if (message.type === "event") {

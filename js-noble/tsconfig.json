@@ -25,7 +25,6 @@
         "paths": {
             "@/*": ["src/*"],
             "@client/*": ["src/client/*"],
-            "@server/*": ["src/server/*"],
             "react": ["./node_modules/preact/compat/"],
             "react-dom": ["./node_modules/preact/compat/"]
         }
