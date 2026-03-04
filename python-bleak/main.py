@@ -117,7 +117,7 @@ class HeartRateApp(ctk.CTk):
 
         rr_interval = ""
 
-        if flags & 0x10:  # RR interval present
+        if flags & 0x10:
             rr_values = []
             while offset + 1 < len(data):
                 rr = int.from_bytes(data[offset : offset + 2], byteorder="little")
