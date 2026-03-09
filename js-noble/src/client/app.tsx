@@ -4,6 +4,7 @@ import Form from "./components/form";
 import { HrCard } from "./components/hr-card";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
+import { capitalize } from "./utils";
 
 export type RecordingState = {
     isRecording: boolean;
@@ -28,10 +29,7 @@ export default function App() {
         calibration: "Calibration",
         ...(Object.fromEntries(
             taskOrder.flatMap((m) =>
-                ["stressor", "relaxation"].map((s) => [
-                    `${m}(${s})` as Phase,
-                    `${m.charAt(0).toUpperCase() + m.slice(1)} - ${s.charAt(0).toUpperCase() + s.slice(1)}`,
-                ]),
+                ["stressor", "relaxation"].map((s) => [`${m}(${s})` as Phase, `${capitalize(m)} - ${capitalize(s)}`]),
             ),
         ) as Record<Exclude<Phase, "calibration">, string>),
     };
@@ -97,9 +95,7 @@ export default function App() {
         <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
             <Toaster />
             <p className="absolute top-0 left-0">
-                Websocket Status: {wsStatus} -- HR Sensor Status: {hrSensor.isConnected ? "Connected" : "Disconnected"}{" "}
-                -- Recording Status: {recording.isRecording ? "Yes" : "No"} -- Participant ID:{" "}
-                {recording.recordingId || "None"}
+                Websocket Status: {wsStatus} -- HR Sensor Status: {hrSensor.isConnected ? "Connected" : "Disconnected"}
             </p>
             <main className="min-h-screen flex flex-col items-center justify-center gap-4">
                 <HrCard hrBpm={hrSensor.hrBpm} />
@@ -112,6 +108,10 @@ export default function App() {
                     phases={phases}
                     phasesArray={phasesArray}
                 />
+                <p className="text-center text-xl">Current phase: {phases[recording.phase]}</p>
+                <p className="text-center text-l text-muted-foreground">
+                    Next phase: {phases[phasesArray[phasesArray.indexOf(recording.phase) + 1]] || "None"}
+                </p>
             </main>
         </ThemeProvider>
     );

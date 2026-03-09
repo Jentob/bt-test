@@ -38,7 +38,7 @@ const recordApi = new Hono()
         sValidator(
             "json",
             z.object({
-                id: z.string(),
+                id: z.string().nonempty(),
                 phase: z.enum(phases),
             }),
         ),
