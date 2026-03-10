@@ -3,7 +3,7 @@ import { useState } from "preact/hooks";
 import { toast } from "sonner";
 import type { Phase, Task } from "@/main";
 import type { RecordingState } from "../app";
-import { apiClient, capitalize } from "../utils";
+import { apiClient, title } from "../utils";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
@@ -138,7 +138,7 @@ export default function Form({
                             >
                                 {square.map((value, key) => (
                                     <option key={key} value={key}>
-                                        {value.reduce((acc, task) => `${acc} ${capitalize(task)}`, "")}
+                                        {value.reduce((acc, task) => `${acc} ${title(task)}`, "")}
                                     </option>
                                 ))}
                             </select>

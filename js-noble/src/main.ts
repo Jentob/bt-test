@@ -19,8 +19,8 @@ registerShutdownFunction(async () => {
     if (peripheral?.state === "connected") await peripheral.disconnectAsync();
 });
 
-export const tasks = ["news", "socials", "breathing"] as const;
-export const states = ["stressor", "relaxation"] as const;
+export const tasks = ["personal", "curated", "breathing", "natural"] as const;
+export const states = ["stressor", "anticipatory", "relaxation"] as const;
 export type Task = (typeof tasks)[number];
 export type State = (typeof states)[number];
 

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import type { Phase, Task } from "@/main";
+import type { Phase, states, Task, tasks } from "@/main";
 import Form from "./components/form";
 import { HrCard } from "./components/hr-card";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
-import { capitalize } from "./utils";
+import { title } from "./utils";
 
 export type RecordingState = {
     isRecording: boolean;
@@ -24,12 +24,20 @@ export default function App() {
         recordingId: "",
         phase: "calibration",
     });
-    const [taskOrder, setTaskOrder] = useState<Task[]>(["news", "socials", "breathing"]);
+    const [taskOrder, setTaskOrder] = useState<Task[]>([
+        "personal",
+        "curated",
+        "breathing",
+        "natural",
+    ] satisfies typeof tasks);
     const phases: Record<Phase, string> = {
         calibration: "Calibration",
         ...(Object.fromEntries(
             taskOrder.flatMap((m) =>
-                ["stressor", "relaxation"].map((s) => [`${m}(${s})` as Phase, `${capitalize(m)} - ${capitalize(s)}`]),
+                (["stressor", "anticipatory", "relaxation"] satisfies typeof states).map((s) => [
+                    `${m}(${s})` as Phase,
+                    `${title(m)} - ${title(s)}`,
+                ]),
             ),
         ) as Record<Exclude<Phase, "calibration">, string>),
     };
