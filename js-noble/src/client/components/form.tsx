@@ -81,6 +81,22 @@ export default function Form({
         }
     };
 
+    const changePhase = async (phase: Phase) => {
+        try {
+            const response = await apiClient.record["new-phase"].$post({
+                json: { phase },
+            });
+
+            if (response.ok) {
+                setRecording((p) => ({ ...p, phase }));
+                toast.success(`Phase changed to "${phases[phase]}"`);
+            }
+        } catch (error) {
+            console.error("Request failed:", error);
+            toast.error("An unexpected error occurred.");
+        }
+    };
+
     const onSubmit = async (e: Event) => {
         e.preventDefault();
         if (disableSubmit) return;
@@ -89,17 +105,14 @@ export default function Form({
         else await startRecording();
     };
 
-    const changePhase = async (s: number) => {
-        const r = recording.isRecording;
-        const currentIndex = phasesArray.indexOf(recording.phase);
-        const newIndex = currentIndex + s;
-        if (r) await stopRecording(true);
-        setRecording((p) => ({ ...p, phase: phasesArray[newIndex] }));
-        if (r) await startRecording({ phase: phasesArray[newIndex] });
+    const shiftPhase = async (s: number) => {
+        const newPhase = phasesArray[phasesArray.indexOf(recording.phase) + s];
+        setRecording((p) => ({ ...p, phase: newPhase }));
+        if (recording.isRecording) await changePhase(newPhase);
     };
 
-    const previousPhase = async () => changePhase(-1);
-    const nextPhase = async () => changePhase(1);
+    const previousPhase = async () => shiftPhase(-1);
+    const nextPhase = async () => shiftPhase(1);
 
     return (
         <Card>

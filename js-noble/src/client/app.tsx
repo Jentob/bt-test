@@ -5,6 +5,8 @@ import { HrCard } from "./components/hr-card";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 import { title } from "./utils";
+import { useStopwatch } from "./hooks/stopwatch";
+import { TimeCard } from "./components/time-card";
 
 export type RecordingState = {
     isRecording: boolean;
@@ -45,6 +47,7 @@ export default function App() {
         [taskOrder],
     );
     const phasesArray = useMemo(() => Object.keys(phases) as Phase[], [phases]);
+    const time = useStopwatch();
 
     useEffect(() => {
         const connect = () => {
@@ -124,7 +127,10 @@ export default function App() {
                 Websocket Status: {wsStatus} -- HR Sensor Status: {hrSensor.isConnected ? "Connected" : "Disconnected"}
             </p>
             <main className="min-h-screen flex flex-col items-center justify-center gap-4">
-                <HrCard hrBpm={hrSensor.hrBpm} />
+                <div className="flex gap-4">
+                    <HrCard hrBpm={hrSensor.hrBpm} />
+                    <TimeCard time={time.time} />
+                </div>
                 {memForm}
                 <p className="text-center text-xl">Current phase: {phases[recording.phase]}</p>
                 <p className="text-center text-l text-muted-foreground">
