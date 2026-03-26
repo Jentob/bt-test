@@ -39,13 +39,15 @@ export default function Form({
     const startRecording = async ({
         id = recording.recordingId,
         phase = recording.phase,
+        gender = recording.gender,
     }: {
         id?: string;
         phase?: Phase;
+        gender?: typeof recording.gender;
     } = {}) => {
         try {
             const response = await apiClient.record.start.$post({
-                json: { id, phase },
+                json: { id, phase, gender },
             });
 
             if (response.ok) {
@@ -70,10 +72,7 @@ export default function Form({
 
             if (response.ok) {
                 setRecording((p) => ({ ...p, isRecording: false }));
-                if (!noNotify)
-                    toast.success(
-                        `Recording stopped: ID "${recording.recordingId}", Phase "${phases[recording.phase]}"`,
-                    );
+                if (!noNotify) toast.success(`Recording stopped: ID "${recording.recordingId}""`);
             }
         } catch (error) {
             console.error("Request failed:", error);
@@ -136,25 +135,48 @@ export default function Form({
                                 }
                             />
                         </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="taskOrder">Task Order</Label>
-                            <select
-                                id="taskOrder"
-                                required
-                                disabled={recording.isRecording}
-                                value={String(taskOrderInput)}
-                                onChange={(e) => {
-                                    setTaskOrderInput(Number(e.currentTarget.value));
-                                    setTaskOrder(square[Number(e.currentTarget.value)]);
-                                    setRecording((p) => ({ ...p, phase: "calibration" }));
-                                }}
-                            >
-                                {square.map((value, key) => (
-                                    <option key={key} value={key}>
-                                        {value.reduce((acc, task) => `${acc} ${title(task)}`, "")}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="flex gap-2">
+                            <div className="flex flex-col gap-2 flex-1">
+                                <Label htmlFor="task-order">Task Order</Label>
+
+                                <select
+                                    id="task-order"
+                                    required
+                                    disabled={recording.isRecording}
+                                    value={String(taskOrderInput)}
+                                    onChange={(e) => {
+                                        setTaskOrderInput(Number(e.currentTarget.value));
+                                        setTaskOrder(square[Number(e.currentTarget.value)]);
+                                        setRecording((p) => ({ ...p, phase: "calibration" }));
+                                    }}
+                                    className="truncate w-50"
+                                >
+                                    {square.map((value, key) => (
+                                        <option key={key} value={key}>
+                                            {value.reduce((acc, task) => `${acc} ${title(task)}`, "")}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <Label htmlFor="gender">Gender</Label>
+                                <select
+                                    id="gender"
+                                    required
+                                    disabled={recording.isRecording}
+                                    value={recording.gender}
+                                    onChange={(e) =>
+                                        setRecording((p) => ({
+                                            ...p,
+                                            gender: e.currentTarget.value as "m" | "f" | "o",
+                                        }))
+                                    }
+                                >
+                                    <option value="m">Male</option>
+                                    <option value="f">Female</option>
+                                    <option value="o">Other</option>
+                                </select>
+                            </div>
                         </div>
                         <div className="flex items-end">
                             <Button

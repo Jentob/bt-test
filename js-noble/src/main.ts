@@ -31,6 +31,7 @@ let isRecording = false;
 let recordingId = "";
 let phase: Phase = "calibration";
 let file: Awaited<ReturnType<typeof fileWritingHelper>> | null = null;
+let gender: "m" | "f" | "o" = "o";
 
 const recordApi = new Hono()
     .post(
@@ -40,15 +41,16 @@ const recordApi = new Hono()
             z.object({
                 id: z.string().nonempty(),
                 phase: z.enum(phases),
+                gender: z.enum(["m", "f", "o"]),
             }),
         ),
         async (c) => {
-            if (isRecording) return c.json({ isRecording, recordingId, phase }, 409);
-            ({ id: recordingId, phase } = c.req.valid("json"));
-            file = await fileWritingHelper(path.join("data", `${Date.now()}-${recordingId}-${phase}.csv`));
+            if (isRecording) return c.json({ isRecording, recordingId, phase, gender }, 409);
+            ({ id: recordingId, phase, gender } = c.req.valid("json"));
+            file = await fileWritingHelper(path.join("data", `${Date.now()}-${recordingId}-${gender}-${phase}.csv`));
             isRecording = true;
 
-            return c.json({ isRecording, recordingId, phase });
+            return c.json({ isRecording, recordingId, phase, gender });
         },
     )
     .post("/stop", async (c) => {
@@ -63,16 +65,16 @@ const recordApi = new Hono()
         recordingId = "";
         phase = "calibration";
 
-        return c.json({ isRecording, recordingId: stoppedId, phase });
+        return c.json({ isRecording, recordingId: stoppedId, phase, gender });
     })
     .post("new-phase", sValidator("json", z.object({ phase: z.enum(phases) })), async (c) => {
         if (!isRecording) return c.json({ message: "No active recording" }, 400);
         ({ phase } = c.req.valid("json"));
         if (file) await file.end();
-        file = await fileWritingHelper(path.join("data", `${Date.now()}-${recordingId}-${phase}.csv`));
-        return c.json({ isRecording, recordingId, phase });
+        file = await fileWritingHelper(path.join("data", `${Date.now()}-${recordingId}-${gender}-${phase}.csv`));
+        return c.json({ isRecording, recordingId, phase, gender });
     })
-    .post("/status", async (c) => c.json({ isRecording, recordingId, phase }));
+    .post("/status", async (c) => c.json({ isRecording, recordingId, phase, gender }));
 
 const app = new Hono()
     .onError((err, c) => {
@@ -124,6 +126,7 @@ const webSocketHandler: Bun.WebSocketHandler<undefined> = {
                                 isRecording,
                                 recordingId,
                                 phase,
+                                gender,
                             },
                             timestamp: Date.now(),
                         } satisfies WsOutgoing),

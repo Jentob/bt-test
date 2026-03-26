@@ -5,13 +5,12 @@ import { HrCard } from "./components/hr-card";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 import { title } from "./utils";
-import { useStopwatch } from "./hooks/stopwatch";
-import { TimeCard } from "./components/time-card";
 
 export type RecordingState = {
     isRecording: boolean;
     recordingId: string;
     phase: Phase;
+    gender: "m" | "f" | "o";
 };
 
 export default function App() {
@@ -25,6 +24,7 @@ export default function App() {
         isRecording: false,
         recordingId: "",
         phase: "calibration",
+        gender: "o",
     });
     const [taskOrder, setTaskOrder] = useState<Task[]>([
         "personal",
@@ -47,7 +47,6 @@ export default function App() {
         [taskOrder],
     );
     const phasesArray = useMemo(() => Object.keys(phases) as Phase[], [phases]);
-    const time = useStopwatch();
 
     useEffect(() => {
         const connect = () => {
@@ -79,9 +78,7 @@ export default function App() {
                     }));
                     setRecording((p) => ({
                         ...p,
-                        isRecording: message.data.isRecording,
-                        recordingId: message.data.recordingId,
-                        phase: message.data.phase,
+                        ...message.data,
                     }));
                 }
                 if (message.type === "event") {
@@ -127,10 +124,7 @@ export default function App() {
                 Websocket Status: {wsStatus} -- HR Sensor Status: {hrSensor.isConnected ? "Connected" : "Disconnected"}
             </p>
             <main className="min-h-screen flex flex-col items-center justify-center gap-4">
-                <div className="flex gap-4">
-                    <HrCard hrBpm={hrSensor.hrBpm} />
-                    <TimeCard time={time.time} />
-                </div>
+                <HrCard hrBpm={hrSensor.hrBpm} />
                 {memForm}
                 <p className="text-center text-xl">Current phase: {phases[recording.phase]}</p>
                 <p className="text-center text-l text-muted-foreground">
