@@ -1,7 +1,7 @@
 import type { Dispatch, StateUpdater } from "preact/hooks";
 import { useState } from "preact/hooks";
 import { toast } from "sonner";
-import type { Phase, Task } from "@/main";
+import type { Phase, Task, tasks } from "@/main";
 import type { RecordingState } from "../app";
 import { apiClient, title } from "../utils";
 import { Button } from "./ui/button";
@@ -9,14 +9,24 @@ import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
+const baseTaskOrder = ["personal", "curated", "breathing", "natural"] satisfies typeof tasks
+
+const square: Task[][] = [];
+    for (let i = 0; i < baseTaskOrder.length; i++) {
+        const row: Task[] = [];
+        for (let j = 0; j < baseTaskOrder.length; j++) {
+            row.push(baseTaskOrder[(i + j) % baseTaskOrder.length]);
+        }
+        square.push(row);
+    }
+
 export default function Form({
     recording,
     setRecording,
-    taskOrder,
     setTaskOrder,
     disableSubmit = false,
     phases,
-    phasesArray,
+    phasesArray
 }: {
     recording: RecordingState;
     setRecording: Dispatch<StateUpdater<RecordingState>>;
@@ -27,14 +37,6 @@ export default function Form({
     phasesArray: Phase[];
 }) {
     const [taskOrderInput, setTaskOrderInput] = useState(phasesArray.indexOf(recording.phase));
-    const square: Task[][] = [];
-    for (let i = 0; i < taskOrder.length; i++) {
-        const row: Task[] = [];
-        for (let j = 0; j < taskOrder.length; j++) {
-            row.push(taskOrder[(i + j) % taskOrder.length]);
-        }
-        square.push(row);
-    }
 
     const startRecording = async ({
         id = recording.recordingId,
